@@ -12,38 +12,40 @@ meshCube = [
     Triangle(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 0.0)),
     Triangle(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 0.0, 0.0)),
 
-    # EAST                                                      
+    # EAST
     Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0)),
     Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 0.0, 1.0)),
 
-    # NORTH                                                     
+    # NORTH
     Triangle(Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1.0, 1.0), Vec3(0.0, 1.0, 1.0)),
     Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 0.0, 1.0)),
 
-    # WEST                                                      
+    # WEST
     Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 1.0, 0.0)),
     Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 0.0), Vec3(0.0, 0.0, 0.0)),
 
-    # TOP                                                       
+    # TOP
     Triangle(Vec3(0.0, 1.0, 0.0), Vec3(0.0, 1.0, 1.0), Vec3(1.0, 1.0, 1.0)),
     Triangle(Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 1.0, 0.0)),
 
-    # BOTTOM                                                    
+    # BOTTOM
     Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0)),
     Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0)),
 ]
 
-def move_camera(camera, dtime):
+def update_camera(camera, dtime):
+    rn = math.radians(90) # Ninety degrees in radians
+    ro = math.radians(1) # One degree in radians
+
     # Camera dir
     m = pygame.mouse.get_rel()
-    camera.pitch += -m[1] * 0.01
+    camera.pitch = max(-rn + ro, min(camera.pitch - m[1] * 0.01, rn - ro))
     camera.yaw += -m[0] * 0.01
-    
-    xz = math.cos(camera.pitch)
-    r = math.radians(90)
-    forward = Vec3(xz * math.sin(camera.yaw), math.sin(camera.pitch), xz * math.cos(-camera.yaw))
-    left = Vec3(xz * math.sin(camera.yaw + r), 0, xz * math.cos(-camera.yaw - r))
-    right = Vec3(xz * math.sin(camera.yaw - r), 0, xz * math.cos(-camera.yaw + r))
+
+    xz = 1 # math.cos(camera.pitch) # Uncomment for pitch-fly
+    forward = Vec3(xz * math.sin(camera.yaw), 0, xz * math.cos(-camera.yaw))
+    left = Vec3(xz * math.sin(camera.yaw + rn), 0, xz * math.cos(-camera.yaw - rn))
+    right = Vec3(xz * math.sin(camera.yaw - rn), 0, xz * math.cos(-camera.yaw + rn))
 
     # Camera pos
     move = Vec3()
@@ -70,7 +72,6 @@ def move_camera(camera, dtime):
     cpos = camera.get_pos()
     camera.set_pos(cpos + (move * speed))
 
-
 class Game:
     def __init__(self):
         self.camera = Camera()
@@ -83,8 +84,10 @@ class Game:
         # self.mesh = Mesh()
         # self.mesh.tris = meshCube
 
-        pygame.mouse.set_visible(False)
-        pygame.event.set_grab(True)
+        self.visible = False
+
+        pygame.mouse.set_visible(self.visible)
+        pygame.event.set_grab(not self.visible)
 
     def start(self):
         while True:
@@ -94,12 +97,14 @@ class Game:
                     sys.exit()
 
             if input.is_down("esc"):
-                pygame.quit()
-                sys.exit()
+                self.visible = not self.visible
+                pygame.mouse.set_visible(self.visible)
+                pygame.event.set_grab(not self.visible)
 
             dtime = self.renderer.clock.tick(60) / 1000.0
 
-            move_camera(self.camera, dtime)
+            if not self.visible:
+                update_camera(self.camera, dtime)
 
             # Frame updating
             self.renderer.clear()
