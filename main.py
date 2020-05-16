@@ -34,52 +34,42 @@ meshCube = [
 ]
 
 def move_camera(camera, dtime):
-    px = 0
-    py = 0
-    pz = 0
+    # Camera dir
+    m = pygame.mouse.get_rel()
+    camera.pitch += -m[1] * 0.01
+    camera.yaw += -m[0] * 0.01
+    
+    xz = math.cos(camera.pitch)
+    r = math.radians(90)
+    forward = Vec3(xz * math.sin(camera.yaw), math.sin(camera.pitch), xz * math.cos(-camera.yaw))
+    left = Vec3(xz * math.sin(camera.yaw + r), 0, xz * math.cos(-camera.yaw - r))
+    right = Vec3(xz * math.sin(camera.yaw - r), 0, xz * math.cos(-camera.yaw + r))
 
-    speed = 5 * dtime
+    # Camera pos
+    move = Vec3()
 
     if input.is_down("up"):
-        pz += speed
+        move += forward
 
     if input.is_down("down"):
-        pz += -speed
+        move -= forward
 
     if input.is_down("left"):
-        px += -speed
+        move += left
 
     if input.is_down("right"):
-        px += speed
+        move += right
 
     if input.is_down("shift"):
-        py += -speed
+        move.y -= 1
 
     if input.is_down("space"):
-        py += speed
+        move.y += 1
 
+    speed = 5 * dtime
     cpos = camera.get_pos()
-    camera.set_pos(cpos + Vec3(px, py, pz))
+    camera.set_pos(cpos + (move * speed))
 
-    m = pygame.mouse.get_rel()
-    # cdir = camera.get_dir()
-    cdir = vector.toMatrix(camera.get_dir())
-
-    rotX = matrix.rotateX(math.radians(-m[1] * 0.5))
-    rotY = matrix.rotateY(math.radians(-m[0] * 0.5))
-
-    cdir = numpy.dot(cdir, rotY)
-    cdir = numpy.dot(cdir, rotX)
-
-    # pitch = math.radians(-m[1])
-    # yaw = math.radians(-m[0])
-    # xz = math.cos(pitch)
-
-    # rot = Vec3(xz * math.cos(yaw), math.sin(pitch), xz * math.sin(-yaw))
-    # print(rot)
-
-    # camera.set_dir((cdir + rot).normalize())
-    # camera.set_dir(vector.fromMatrix(cdir))
 
 class Game:
     def __init__(self):
@@ -93,8 +83,8 @@ class Game:
         # self.mesh = Mesh()
         # self.mesh.tris = meshCube
 
-        # pygame.mouse.set_visible(False)
-        # pygame.event.set_grab(True)
+        pygame.mouse.set_visible(False)
+        pygame.event.set_grab(True)
 
     def start(self):
         while True:

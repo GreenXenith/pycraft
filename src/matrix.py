@@ -69,7 +69,8 @@ def inversePointAt(matrix):
     matInv[3][1] = -(matrix[3][0] * matInv[0][1] + matrix[3][1] * matInv[1][1] + matrix[3][2] * matInv[2][1])
     matInv[3][2] = -(matrix[3][0] * matInv[0][2] + matrix[3][1] * matInv[1][2] + matrix[3][2] * matInv[2][2])
     matInv[3][3] = 1.0
-    return matrix
+
+    return matInv
 
 def perspective(ratio, fov, near, far):
     fovRad = 1.0 / math.tan(fov * 0.5 / 180.0 * math.pi)

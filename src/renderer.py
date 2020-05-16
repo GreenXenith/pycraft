@@ -32,24 +32,31 @@ class Renderer:
 
         # World matrix
         matWorld = matrix.identity()
-        matWorld = numpy.dot(matWorld, matRotX)
-        matWorld = numpy.dot(matWorld, matRotY)
         matWorld = numpy.dot(matWorld, matRotZ)
+        matWorld = numpy.dot(matWorld, matRotY)
+        matWorld = numpy.dot(matWorld, matRotX)
         matWorld = numpy.dot(matTran, matWorld)
 
         # Camera matrix
         up = Vec3(0, 1, 0)
-        target = camera.pos + camera.dir
+        target = Vec3(0, 0, 1)
+
+        matCamRot = matrix.identity()
+        matCamRot = numpy.dot(matCamRot, matrix.rotateY(camera.yaw))
+        matCamRot = numpy.dot(matCamRot, matrix.rotateX(camera.pitch))
+
+        lookDir = numpy.dot(matCamRot, vector.toMatrix(target))
+        target = camera.pos + vector.fromMatrix(lookDir)
 
         matCamera = matrix.pointAt(camera.pos, target, up)
-        matView = matrix.inversePointAt(matCamera) # Invert pointAt matrix
+        matView = matrix.inversePointAt(matCamera)
 
         rasterTris = []
         for tri in mesh.tris:
             # Transform triangle
             transformedTri = Triangle()
             for point in tri.verts:
-                transformedPoint = numpy.dot(vector.toMatrix(point), matWorld)
+                transformedPoint = numpy.dot(matWorld, vector.toMatrix(point))
                 transformedTri.verts.append(vector.fromMatrix(transformedPoint))
 
             # Normal calculation
@@ -60,11 +67,10 @@ class Renderer:
             camRay = transformedTri.verts[0] - camera.pos
 
             # Culling
-            if vector.dot(normal, camRay) > 0.0:
+            if vector.dot(normal, camRay) < 0.0:
                 points = []
                 for point in transformedTri.verts:
                     viewPoint = numpy.dot(vector.toMatrix(point), matView)
-                    # viewPoint = vector.toMatrix(point)
 
                     # Perspective Projection
                     projPoint = numpy.dot(viewPoint, self.matProj)
@@ -79,6 +85,7 @@ class Renderer:
                     p.y += 1.0
                     p.x *= 0.5 * self.screen_w
                     p.y *= 0.5 * self.screen_h
+                    p.x = self.screen_w - p.x
                     p.y = self.screen_h - p.y
 
                     points.append(p)
@@ -88,10 +95,10 @@ class Renderer:
                 rasterTris.append(projectedTri)
 
         # Poor-man's depth buffer
-        sortedTries = sorted(rasterTris, key = lambda tri: (tri.verts[0].z + tri.verts[1].z + tri.verts[2].z) / 3.0)
+        sortedTries = sorted(rasterTris, key = lambda tri: (tri.verts[0].z + tri.verts[1].z + tri.verts[2].z) / 3.0, reverse = True)
 
         # Light direction
-        light = Vec3(-1, -1, -1).normalize()
+        light = Vec3(1, 1, 1).normalize()
 
         for tri in sortedTries:
             # Calcuate triangle lighting

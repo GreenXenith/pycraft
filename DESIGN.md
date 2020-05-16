@@ -3,7 +3,7 @@
 ## Goals and Requirements
 * ✓ Render cubes using PyGame surfaces and projection methods
 * ✗ Map textures onto cubes
-* ? Free-moving camera, controlled by mouse and WASD/Arrows
+* ✓ Free-moving camera, controlled by mouse and WASD/Arrows
 * ✓ Simple per-face lighting (This ended up being dynamic)
 * ? Perform at an acceptable level (24FPS+)
 * ✗ Block interaction (placement, removal)
