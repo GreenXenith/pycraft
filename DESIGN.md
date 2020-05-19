@@ -2,28 +2,30 @@
 
 ## Goals and Requirements
 * ✓ Render cubes using PyGame surfaces and projection methods
-* ✗ Map textures onto cubes
+* ✓ Map textures onto cubes
 * ✓ Free-moving camera, controlled by mouse and WASD/Arrows
 * ✓ Simple per-face lighting (This ended up being dynamic)
 * ? Perform at an acceptable level (24FPS+)
 * ✗ Block interaction (placement, removal)
 * ✓ Face-culling system, likely using raycasting (Ended up using normals)
-* ? Simple physics system
+* ✗ Simple physics system
 * ? Basic perlin-noise mapgen
 
-`?` means either partially complete or undecided.  
+`✓`: Goal complete
+`?`: Goal partially complete or undecided
+`✗`: Incomplete or rejected 
 
 ## Pseudocode and Structure
 `camera.py`: Camera class (abstract)
-* Contains position and rotation information
+* Contains position and pitch/yaw information
 * Provides methods to set position/rotation
 
 `vector.py`: Vec3 class
 * Positional/rotational vectors
 * All the math methods
 
-`mesh.py`: Triangle and Mesh classes
-* Triangle has 3 Vec3s, normal, and color
+`mesh.py`: Triangle, Mesh, and UV classes
+* Triangle has 3 Vec3s, 3 UVs, normal, and color
 * Mesh made up of n triangles
 * Load from file (.obj)
 
