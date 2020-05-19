@@ -76,6 +76,9 @@ class Game:
     def __init__(self, screen_w = 800, screen_h = 600):
         pygame.init()
 
+        self.screen_w = screen_w
+        self.screen_h = screen_h
+
         self.visible = False
         self.esc = False
         pygame.mouse.set_visible(self.visible)
@@ -141,6 +144,13 @@ class Game:
             self.renderer.draw(self.camera, self.mesh, Vec3(1, 0, 0), Vec3(0, 0, 0), self.texture)
 
             self.renderer.update()
+
+            mid_w = self.screen_w / 2
+            mid_h = self.screen_h / 2
+            pygame.draw.line(self.renderer.screen, (255, 255, 255), (mid_w, mid_h + 10), (mid_w, mid_h - 10))
+            pygame.draw.line(self.renderer.screen, (255, 255, 255), (mid_w + 10, mid_h), (mid_w - 10, mid_h))
+
+            pygame.display.flip() # Double flip to show crosshair
 
             pygame.display.set_caption(str(round(1.0 / (time.time() - begin), 1)) + "FPS")
 
