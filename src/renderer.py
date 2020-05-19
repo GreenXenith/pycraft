@@ -94,6 +94,9 @@ def clipTriangle(planeP, normal, triangle):
     else: # nInsidePoints == 3
         return [triangle]
 
+def lightColor(rgb, light):
+    return (max(0, min(rgb[0] * light, 255)), max(0, min(rgb[1] * light, 255)), max(0, min(rgb[2] * light, 255)), rgb[3])
+
 def drawTexturedTriangle(surface, triangle, texture, light):
     verts = [[triangle.verts[0], triangle.uv[0]], [triangle.verts[1], triangle.uv[1]], [triangle.verts[2], triangle.uv[2]]]
     s = sorted(verts, key = lambda s: s[0].y)
@@ -173,13 +176,13 @@ def drawTexturedTriangle(surface, triangle, texture, light):
                 tex_v = (1.0 - t) * tex_sv + t * tex_ev
                 tex_w = (1.0 - t) * tex_sw + t * tex_ew
 
-                # if tex_w != 0:
-                #     tex_u = tex_u / tex_w
-                #     tex_v = tex_v / tex_w
+                if tex_w != 0:
+                    tex_u /= tex_w
+                    tex_v /= tex_w
 
-                t_x = min(int(math.floor(16 * (tex_u))), 15)
-                t_y = min(int(math.floor(16 * (tex_v))), 15)
-                surface.set_at((j, i), texture.get_at((t_x, t_y)))
+                t_x = max(0, min(int(math.floor(16 * (tex_u))), 15))
+                t_y = max(0, min(int(math.floor(16 * (tex_v))), 15))
+                surface.set_at((j, i), lightColor(texture.get_at((t_x, t_y)), light))
 
                 t += tstep
 
@@ -240,13 +243,13 @@ def drawTexturedTriangle(surface, triangle, texture, light):
                 tex_v = (1.0 - t) * tex_sv + t * tex_ev
                 tex_w = (1.0 - t) * tex_sw + t * tex_ew
 
-                # if tex_w != 0:
-                #     tex_u = tex_u / tex_w
-                #     tex_v = tex_v / tex_w
+                if tex_w != 0:
+                    tex_u /= tex_w
+                    tex_v /= tex_w
 
-                t_x = min(int(math.floor(16 * (tex_u))), 15)
-                t_y = min(int(math.floor(16 * (tex_v))), 15)
-                surface.set_at((j, i), texture.get_at((t_x, t_y)))
+                t_x = max(0, min(int(math.floor(16 * (tex_u))), 15))
+                t_y = max(0, min(int(math.floor(16 * (tex_v))), 15))
+                surface.set_at((j, i), lightColor(texture.get_at((t_x, t_y)), light))
 
                 t += tstep
 
@@ -322,6 +325,7 @@ class Renderer:
                 for point in transformedTri.verts:
                     viewPoint = numpy.dot(vector.toMatrix(point), matView)
                     viewedTriangle.verts.append(vector.fromMatrix(viewPoint))
+                    viewedTriangle.uv = copy.deepcopy(tri.uv)
 
                 # Clip on near z plane
                 clippedTris = clipTriangle(Vec3(0.0, 0.0, 0.11), Vec3(0.0, 0.0, 1.0), viewedTriangle)
@@ -329,7 +333,6 @@ class Renderer:
                     projectedTri = Triangle()
                     projectedTri.normal = normal
                     projectedTri.index = tri.index
-                    projectedTri.uv = copy.deepcopy(tri.uv)
 
                     for i in range(3):
                         # Perspective Projection
@@ -338,9 +341,9 @@ class Renderer:
                         w = projPoint[3]
 
                         if w != 0:
-                            # projectedTri.uv[i].u = clippedTri.uv[i].u / w
-                            # projectedTri.uv[i].v = clippedTri.uv[i].v / w
-                            # projectedTri.uv[i].w = 1.0 / w
+                            projectedTri.uv[i].u = clippedTri.uv[i].u / w
+                            projectedTri.uv[i].v = clippedTri.uv[i].v / w
+                            projectedTri.uv[i].w = 1.0 / w
                             p /= w
 
                         # Scale to screen
@@ -383,12 +386,11 @@ class Renderer:
 
             for tri in clippedTris:
                 # Calcuate triangle lighting
-                dlight = 255 * max(0.1, vector.dot(light, tri.normal))
+                tLight = max(0.1, vector.dot(light, tri.normal))
+                drawTexturedTriangle(self.screen, tri, textures[tri.index], tLight)
 
-                points = []
-                for v in tri.verts:
-                    points.append((v.x, v.y))
-
+                # points = []
+                # for v in tri.verts:
+                #     points.append((v.x, v.y))
                 # pygame.draw.polygon(self.screen, (dlight, dlight, dlight), points)
-                drawTexturedTriangle(self.screen, tri, textures[tri.index], dlight)
-                pygame.draw.lines(self.screen, (255, 255, 255), True, points)
+                # pygame.draw.lines(self.screen, (255, 255, 255), True, points)

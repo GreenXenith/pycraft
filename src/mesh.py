@@ -7,12 +7,16 @@ class UV:
         self.w = float(w)
 
 class Triangle:
-    def __init__(self, v1 = None, v2 = None, v3 = None, uv1 = UV(0, 0, 0), uv2 = UV(0, 0, 0), uv3 = UV(0, 0, 0), textureIndex = 0):
+    def __init__(self, v1 = None, v2 = None, v3 = None, uv1 = None, uv2 = None, uv3 = None, textureIndex = 0):
         self.verts = []
         if v1 and v2 and v3:
             self.verts = [v1, v2, v3]
 
-        self.uv = [uv1, uv2, uv3]
+        if uv1 and uv2 and uv3:
+            self.uv = [uv1, uv2, uv3]
+        else:
+            self.uv = [UV(0, 0, 0), UV(0, 0, 0), UV(0, 0, 0)]
+
         self.normal = Vec3()
         self.color = (255, 255, 255)
         self.index = textureIndex
@@ -34,7 +38,7 @@ class Mesh:
             l = line.split()
             if line[0] == "v":
                 verts.append(Vec3(float(l[1]), float(l[2]), float(l[3])))
-            
+
             if line[0] == "f":
                 tris.append(Triangle(
                     verts[int(l[1]) - 1],
