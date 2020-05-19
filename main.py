@@ -1,4 +1,4 @@
-import pygame, sys, math, numpy
+import pygame, sys, math, numpy, time
 import src.input as input
 import src.matrix as matrix
 import src.vector as vector
@@ -107,6 +107,8 @@ class Game:
 
     def start(self):
         while True:
+            begin = time.time()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -138,6 +140,8 @@ class Game:
             self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), Vec3(0, 0, 0), self.texture)
 
             pygame.display.flip()
+
+            pygame.display.set_caption(str(round(1.0 / (time.time() - begin), 1)) + "FPS")
 
 if __name__ == "__main__":
     Game().start()
