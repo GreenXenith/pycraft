@@ -257,11 +257,11 @@ def drawTexturedTriangle(surface, triangle, texture, light):
 
 class Renderer:
     def __init__(self, screen_w = 800, screen_h = 600):
-        pygame.init()
         self.screen_w = screen_w
         self.screen_h = screen_h
         self.screen = pygame.display.set_mode((screen_w, screen_h))
         self.clock = pygame.time.Clock()
+        pygame.mouse.get_rel()
 
         self.matProj = matrix.perspective(screen_h / screen_w, 90.0, 0.1, 1000.0)
 

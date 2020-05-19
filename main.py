@@ -73,11 +73,19 @@ def update_camera(camera, dtime):
     camera.set_pos(cpos + (move * speed))
 
 class Game:
-    def __init__(self):
+    def __init__(self, screen_w = 800, screen_h = 600):
+        pygame.init()
+
+        self.visible = False
+        self.esc = False
+        pygame.mouse.set_visible(self.visible)
+        pygame.event.set_grab(not self.visible)
+        pygame.mouse.set_pos((screen_w / 2, screen_h / 2))
+
         self.camera = Camera()
         self.camera.set_pos(Vec3(0, 0, -4))
         # self.camera.set_dir(Vec3(0, 1, 1))
-        self.renderer = Renderer()
+        self.renderer = Renderer(screen_w, screen_h)
         self.theta = 0
         # self.mesh = Mesh("media/teapot.obj")
         # self.mesh = Mesh("media/axis.obj")
@@ -97,11 +105,6 @@ class Game:
             self.media["dirt"]
         ]
 
-        self.visible = False
-
-        pygame.mouse.set_visible(self.visible)
-        pygame.event.set_grab(not self.visible)
-
     def start(self):
         while True:
             for event in pygame.event.get():
@@ -109,10 +112,18 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-            if input.is_down("esc"):
+            if not self.esc and input.is_down("esc"):
                 self.visible = not self.visible
+
                 pygame.mouse.set_visible(self.visible)
                 pygame.event.set_grab(not self.visible)
+
+                if self.visible: # Center cursor
+                    pygame.mouse.set_pos((self.renderer.screen_w / 2, self.renderer.screen_h / 2))
+                else: # Reset cursor
+                    pygame.mouse.get_rel()
+
+            self.esc = input.is_down("esc")
 
             dtime = self.renderer.clock.tick(60) / 1000.0
 
@@ -121,7 +132,7 @@ class Game:
 
             # Frame updating
             self.renderer.clear()
-            self.theta += 1
+            # self.theta += 1
             # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(self.theta, self.theta, self.theta), math.radians), self.texture)
             # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(160, self.theta, 0), math.radians))
             self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), Vec3(0, 0, 0), self.texture)
