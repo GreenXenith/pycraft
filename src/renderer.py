@@ -95,9 +95,10 @@ def clipTriangle(planeP, normal, triangle):
         return [triangle]
 
 def lightColor(rgb, light):
-    return (max(0, min(rgb[0] * light, 255)), max(0, min(rgb[1] * light, 255)), max(0, min(rgb[2] * light, 255)), rgb[3])
+    c = lambda v: max(0, min(int(v * light), 255))
+    return int("%02x%02x%02x" % (c(rgb[0]), c(rgb[1]), c(rgb[2])), 16)
 
-def drawTexturedTriangle(surface, triangle, texture, light):
+def drawTexturedTriangle(pixelBuffer, depthBuffer, triangle, texture, light):
     verts = [[triangle.verts[0], triangle.uv[0]], [triangle.verts[1], triangle.uv[1]], [triangle.verts[2], triangle.uv[2]]]
     s = sorted(verts, key = lambda s: s[0].y)
 
@@ -182,7 +183,10 @@ def drawTexturedTriangle(surface, triangle, texture, light):
 
                 t_x = max(0, min(int(math.floor(16 * (tex_u))), 15))
                 t_y = max(0, min(int(math.floor(16 * (tex_v))), 15))
-                surface.set_at((j, i), lightColor(texture.get_at((t_x, t_y)), light))
+
+                if tex_w > depthBuffer[j][i]:
+                    pixelBuffer[j][i] = lightColor(texture.get_at((t_x, t_y)), light)
+                    depthBuffer[j][i] = tex_w
 
                 t += tstep
 
@@ -249,7 +253,10 @@ def drawTexturedTriangle(surface, triangle, texture, light):
 
                 t_x = max(0, min(int(math.floor(16 * (tex_u))), 15))
                 t_y = max(0, min(int(math.floor(16 * (tex_v))), 15))
-                surface.set_at((j, i), lightColor(texture.get_at((t_x, t_y)), light))
+
+                if tex_w > depthBuffer[j][i]:
+                    pixelBuffer[j][i] = lightColor(texture.get_at((t_x, t_y)), light)
+                    depthBuffer[j][i] = tex_w
 
                 t += tstep
 
@@ -260,6 +267,10 @@ class Renderer:
         self.screen_w = screen_w
         self.screen_h = screen_h
         self.screen = pygame.display.set_mode((screen_w, screen_h))
+
+        self.pixelBuffer = numpy.zeros((screen_w, screen_h))
+        self.depthBuffer = numpy.zeros((screen_w, screen_h))
+
         self.clock = pygame.time.Clock()
         pygame.mouse.get_rel()
 
@@ -267,6 +278,12 @@ class Renderer:
 
     def clear(self):
         self.screen.fill((0, 0, 0))
+        self.pixelBuffer = numpy.zeros((self.screen_w, self.screen_h))
+        self.depthBuffer = numpy.zeros((self.screen_w, self.screen_h))
+
+    def update(self):
+        pygame.surfarray.blit_array(self.screen, self.pixelBuffer)
+        pygame.display.flip()
 
     def draw(self, camera, mesh, position, rotation, textures = ["", "", "", "", "", ""]):
         # Rotation matricies
@@ -387,7 +404,7 @@ class Renderer:
             for tri in clippedTris:
                 # Calcuate triangle lighting
                 tLight = max(0.1, vector.dot(light, tri.normal))
-                drawTexturedTriangle(self.screen, tri, textures[tri.index], tLight)
+                drawTexturedTriangle(self.pixelBuffer, self.depthBuffer, tri, textures[tri.index], tLight)
 
                 # points = []
                 # for v in tri.verts:

@@ -138,8 +138,9 @@ class Game:
             # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(self.theta, self.theta, self.theta), math.radians), self.texture)
             # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(160, self.theta, 0), math.radians))
             self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), Vec3(0, 0, 0), self.texture)
+            self.renderer.draw(self.camera, self.mesh, Vec3(1, 0, 0), Vec3(0, 0, 0), self.texture)
 
-            pygame.display.flip()
+            self.renderer.update()
 
             pygame.display.set_caption(str(round(1.0 / (time.time() - begin), 1)) + "FPS")
 
