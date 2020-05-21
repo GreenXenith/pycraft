@@ -277,8 +277,8 @@ class Renderer:
         self.matProj = matrix.perspective(screen_h / screen_w, 90.0, 0.1, 1000.0)
 
     def clear(self):
-        self.screen.fill((0, 0, 0))
-        self.pixelBuffer = numpy.zeros((self.screen_w, self.screen_h))
+        # self.screen.fill((0, 0, 0))
+        self.pixelBuffer = numpy.full((self.screen_w, self.screen_h), 0x97C5FE) # Sky color
         self.depthBuffer = numpy.zeros((self.screen_w, self.screen_h))
 
     def update(self):
@@ -375,11 +375,11 @@ class Renderer:
 
                     rasterTris.append(projectedTri)
 
-        # Poor-man's depth buffer
+        # Triangle sorting (technically useless with a depth buffer)
         sortedTris = sorted(rasterTris, key = lambda tri: (tri.verts[0].z + tri.verts[1].z + tri.verts[2].z) / 3.0, reverse = True)
 
         # Light direction
-        light = Vec3(0, 1, -1).normalize()
+        light = Vec3(0.5, 1, -1).normalize()
 
         for tri in sortedTris:
             # Clip triangles on screen edges

@@ -1,37 +1,12 @@
-import pygame, sys, math, numpy, time
+import math, numpy, pygame, sys, time
 import src.input as input
 import src.matrix as matrix
 import src.vector as vector
 from src.vector import Vec3
-from src.mesh import *
+from src.mesh import Cube
 from src.camera import Camera
 from src.renderer import Renderer
-
-meshCube = [
-    # SOUTH
-    Triangle(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 0),
-    Triangle(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 0),
-
-    # EAST
-    Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 1),
-    Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 0.0, 1.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 1),
-
-    # NORTH
-    Triangle(Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1.0, 1.0), Vec3(0.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 2),
-    Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 0.0, 1.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 2),
-
-    # WEST
-    Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 1.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 3),
-    Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 0.0), Vec3(0.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 3),
-
-    # TOP
-    Triangle(Vec3(0.0, 1.0, 0.0), Vec3(0.0, 1.0, 1.0), Vec3(1.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 4),
-    Triangle(Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 1.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 4),
-
-    # BOTTOM
-    Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 5),
-    Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 5),
-]
+from src.map import Map
 
 def update_camera(camera, dtime):
     rn = math.radians(90) # Ninety degrees in radians
@@ -86,19 +61,19 @@ class Game:
         pygame.mouse.set_pos((screen_w / 2, screen_h / 2))
 
         self.camera = Camera()
-        self.camera.set_pos(Vec3(0, 0, -4))
-        # self.camera.set_dir(Vec3(0, 1, 1))
+        self.camera.set_pos(Vec3(0, 0, -32))
+
         self.renderer = Renderer(screen_w, screen_h)
-        self.theta = 0
-        # self.mesh = Mesh("media/teapot.obj")
-        # self.mesh = Mesh("media/axis.obj")
-        self.mesh = Mesh()
-        self.mesh.tris = meshCube
+
+        # Only generate cube mesh once
+        self.cube = Cube()
+
         self.media = {
             "grass_block_side": pygame.image.load("media/grass_block_side.png"),
             "grass": pygame.image.load("media/grass.png"),
             "dirt": pygame.image.load("media/dirt.png")
         }
+
         self.texture = [
             self.media["grass_block_side"],
             self.media["grass_block_side"],
@@ -107,6 +82,8 @@ class Game:
             self.media["grass"],
             self.media["dirt"]
         ]
+
+        self.map = Map(8, False) # Change False to True for testing mode
 
     def start(self):
         while True:
@@ -137,11 +114,13 @@ class Game:
 
             # Frame updating
             self.renderer.clear()
-            # self.theta += 1
-            # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(self.theta, self.theta, self.theta), math.radians), self.texture)
-            # self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), vector.apply(Vec3(160, self.theta, 0), math.radians))
-            self.renderer.draw(self.camera, self.mesh, Vec3(0, 0, 0), Vec3(0, 0, 0), self.texture)
-            self.renderer.draw(self.camera, self.mesh, Vec3(1, 0, 0), Vec3(0, 0, 0), self.texture)
+
+            m = self.map.map
+            for x in range(len(m)):
+                for z in range(len(m[x])):
+                    for y in range(len(m[x][z])):
+                        if m[x][z][y] == 1:
+                            self.renderer.draw(self.camera, self.cube, Vec3(x, y, z), Vec3(0, 0, 0), self.texture)
 
             self.renderer.update()
 

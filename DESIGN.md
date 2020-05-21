@@ -9,11 +9,13 @@
 * ✗ Block interaction (placement, removal)
 * ✓ Face-culling system, likely using raycasting (Ended up using normals)
 * ✗ Simple physics system
-* ? Basic perlin-noise mapgen
+* ✓ Basic perlin-noise mapgen
 
-`✓`: Goal complete
-`?`: Goal partially complete or undecided
-`✗`: Incomplete or rejected 
+`✓`: Goal complete  
+`?`: Goal partially complete or undecided  
+`✗`: Incomplete or rejected  
+
+---
 
 ## Pseudocode and Structure
 `camera.py`: Camera class (abstract)
@@ -29,25 +31,12 @@
 * Mesh made up of n triangles
 * Load from file (.obj)
 
-`cube.py`: Cube class
-* Provides position and rotation
-* Provides image(s) as face texture(s)
-* Method to generate textured mesh
-
-`node.py`: Node registry and class
-* Provides function to register definitions
-  * Name
-  * Texture(s)
-  * Solid
-* Stores node definitions by name in global dictionary
-* Generates id and stores in id<->nodename lists
-* Function to get nodename from content id (and vice versa)
+`noise.py`: Perlin noise generator
 
 `map.py`: Map and mapnode classes
-* Mapnode class stores node id, position, and rotation
-* Map class stores mapnodes either arbitrarily or from a generator
+* Map class stores mapnodes
 * Coordinates are Y-up
-* Map class provides methods to get and set mapnodes
+* Uses noise for terrain generation
 
 `renderer.py`: Rendering stage (class)
 * Send mesh to renderer for drawing
@@ -56,7 +45,7 @@
 * Project to screenspace (projection matrix)
 
 `main.py`: Main application
-* Creates a map with nodes (or generates one)
+* Generate a map
 * Initializes the camera
 * Uses input to move camera (or set camera physics)
 * Renderloop limited to 60FPS at most:
@@ -68,6 +57,8 @@
 * `is_pressed` method
 * Control mapping list
 * `on_*` hooks?
+
+---
 
 `physics.py`(?): Physics handler (game object class)
 * Acceleration, velocity, and position members
