@@ -2,7 +2,8 @@
 _Minecraft written in PyGame. Because why not._
 
 ## Usage
-`python3 main.py`
+`python3 main.py` to run the game.  
+`python3 test.py` to run unit tests.  
 
 ## Controls
 | Key  | Action |
