@@ -1,3 +1,8 @@
+"""
+PyCraft Game
+(Mostly a renderer, but whatever)
+"""
+
 import math, numpy, pygame, sys, time
 import src.input as input
 import src.matrix as matrix
@@ -8,6 +13,7 @@ from src.camera import Camera
 from src.renderer import Renderer
 from src.map import Map
 
+# Camera movement and rotation
 def update_camera(camera, dtime):
     rn = math.radians(90) # Ninety degrees in radians
     ro = math.radians(1) # One degree in radians
@@ -54,20 +60,23 @@ class Game:
         self.screen_w = screen_w
         self.screen_h = screen_h
 
+        # Cursor handling
         self.visible = False
         self.esc = False
         pygame.mouse.set_visible(self.visible)
         pygame.event.set_grab(not self.visible)
         pygame.mouse.set_pos((screen_w / 2, screen_h / 2))
 
+        # Initialize camera
         self.camera = Camera()
-        self.camera.set_pos(Vec3(0, 0, -32))
+        self.camera.set_pos(Vec3(0, 0, -32)) # Set far away to help performance
 
         self.renderer = Renderer(screen_w, screen_h)
 
         # Only generate cube mesh once
         self.cube = Cube()
 
+        # Load images and define grass block
         self.media = {
             "grass_block_side": pygame.image.load("media/grass_block_side.png"),
             "grass": pygame.image.load("media/grass.png"),
@@ -86,6 +95,7 @@ class Game:
         self.map = Map(8, False) # Change False to True for testing mode
 
     def start(self):
+        # Game loop
         while True:
             begin = time.time()
 
@@ -94,6 +104,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+            # Free/grab cursor
             if not self.esc and input.is_down("esc"):
                 self.visible = not self.visible
 
@@ -115,6 +126,7 @@ class Game:
             # Frame updating
             self.renderer.clear()
 
+            # Render the blocks
             m = self.map.map
             for x in range(len(m)):
                 for z in range(len(m[x])):
@@ -124,6 +136,7 @@ class Game:
 
             self.renderer.update()
 
+            # Crosshair
             mid_w = self.screen_w / 2
             mid_h = self.screen_h / 2
             pygame.draw.line(self.renderer.screen, (255, 255, 255), (mid_w, mid_h + 10), (mid_w, mid_h - 10))
@@ -131,6 +144,7 @@ class Game:
 
             pygame.display.flip() # Double flip to show crosshair
 
+            # FPS counter
             pygame.display.set_caption(str(round(1.0 / (time.time() - begin), 1)) + "FPS")
 
 if __name__ == "__main__":

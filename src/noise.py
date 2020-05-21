@@ -1,10 +1,11 @@
 # Source: https://pvigier.github.io/2018/06/13/perlin-noise-numpy.html
+# I don't know how much of this works. Numpy vectorization is black magic to me.
 import numpy
 
 def perlin(shape, res):
     def f(t):
         return 6*t**5 - 15*t**4 + 10*t**3
-    
+
     delta = (res[0] / shape[0], res[1] / shape[1])
     d = (shape[0] // res[0], shape[1] // res[1])
     grid = numpy.mgrid[0:res[0]:delta[0],0:res[1]:delta[1]].transpose(1, 2, 0) % 1

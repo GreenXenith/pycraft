@@ -3,6 +3,7 @@ from . import matrix, vector
 from .vector import Vec3
 from .mesh import Triangle, UV
 
+# Plane-line intersection point (used for clipping)
 def planeLineIntersection(plane_p, normal, lineStart, lineEnd):
     normal = normal.normalize()
     d = -vector.dot(normal, plane_p)
@@ -12,6 +13,7 @@ def planeLineIntersection(plane_p, normal, lineStart, lineEnd):
     line = lineEnd - lineStart
     return lineStart + (line * t), t
 
+# Clip triangle against arbitrary plane/line and return new triangles
 def clipTriangle(planeP, normal, triangle):
     normal = normal.normalize()
 
@@ -94,11 +96,14 @@ def clipTriangle(planeP, normal, triangle):
     else: # nInsidePoints == 3
         return [triangle]
 
+# Adjust an RGB color based on light value
 def lightColor(rgb, light):
     c = lambda v: max(0, min(int(v * light), 255))
     return int("%02x%02x%02x" % (c(rgb[0]), c(rgb[1]), c(rgb[2])), 16)
 
+# Manually draw textured triangle
 def drawTexturedTriangle(pixelBuffer, depthBuffer, triangle, texture, light):
+    # Sort verticies from y+ to y-
     verts = [[triangle.verts[0], triangle.uv[0]], [triangle.verts[1], triangle.uv[1]], [triangle.verts[2], triangle.uv[2]]]
     s = sorted(verts, key = lambda s: s[0].y)
 
@@ -268,16 +273,16 @@ class Renderer:
         self.screen_h = screen_h
         self.screen = pygame.display.set_mode((screen_w, screen_h))
 
-        self.pixelBuffer = numpy.zeros((screen_w, screen_h))
-        self.depthBuffer = numpy.zeros((screen_w, screen_h))
+        self.pixelBuffer = numpy.zeros((screen_w, screen_h)) # Pixel colors
+        self.depthBuffer = numpy.zeros((screen_w, screen_h)) # Pixel depths
 
         self.clock = pygame.time.Clock()
         pygame.mouse.get_rel()
 
+        # Generate projection matrix
         self.matProj = matrix.perspective(screen_h / screen_w, 90.0, 0.1, 1000.0)
 
     def clear(self):
-        # self.screen.fill((0, 0, 0))
         self.pixelBuffer = numpy.full((self.screen_w, self.screen_h), 0x97C5FE) # Sky color
         self.depthBuffer = numpy.zeros((self.screen_w, self.screen_h))
 
@@ -406,6 +411,7 @@ class Renderer:
                 tLight = max(0.1, vector.dot(light, tri.normal))
                 drawTexturedTriangle(self.pixelBuffer, self.depthBuffer, tri, textures[tri.index], tLight)
 
+                # # Debug stuff
                 # points = []
                 # for v in tri.verts:
                 #     points.append((v.x, v.y))

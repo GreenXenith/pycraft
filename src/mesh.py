@@ -1,5 +1,6 @@
 from .vector import Vec3
 
+# UV coordinates (includes w for perspective correction)
 class UV:
     def __init__(self, u = 0, v = 0, w = 0):
         self.u = float(u)
@@ -18,7 +19,7 @@ class Triangle:
             self.uv = [UV(0, 0, 0), UV(0, 0, 0), UV(0, 0, 0)]
 
         self.normal = Vec3()
-        self.color = (255, 255, 255)
+        self.color = (255, 255, 255) # This is only used for non-textured drawing
         self.index = textureIndex
 
 class Mesh:
@@ -27,6 +28,7 @@ class Mesh:
         if file != "":
             self.fromFile(file)
 
+    # File loader (used for testing)
     def fromFile(self, path):
         f = open(path, "r")
         lines = f.readlines()
@@ -48,30 +50,31 @@ class Mesh:
 
         self.tris = tris
 
+# Cube mesh (premade)
 def Cube():
     mesh = Mesh()
     mesh.tris = [
-        # SOUTH
+        # South (Z-)
         Triangle(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 0),
         Triangle(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 0),
 
-        # EAST
+        # East (X+)
         Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 1),
         Triangle(Vec3(1.0, 0.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 0.0, 1.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 1),
 
-        # NORTH
+        # North (Z+)
         Triangle(Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1.0, 1.0), Vec3(0.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 2),
         Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 0.0, 1.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 2),
 
-        # WEST
+        # West (X-)
         Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 1.0), Vec3(0.0, 1.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 3),
         Triangle(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 0.0), Vec3(0.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 3),
 
-        # TOP
+        # Top (Y+)
         Triangle(Vec3(0.0, 1.0, 0.0), Vec3(0.0, 1.0, 1.0), Vec3(1.0, 1.0, 1.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 4),
         Triangle(Vec3(0.0, 1.0, 0.0), Vec3(1.0, 1.0, 1.0), Vec3(1.0, 1.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 4),
 
-        # BOTTOM
+        # Bottom (Y-)
         Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0), UV(0, 1, 1), UV(0, 0, 1), UV(1, 0, 1), 5),
         Triangle(Vec3(1.0, 0.0, 1.0), Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0), UV(0, 1, 1), UV(1, 0, 1), UV(1, 1, 1), 5),
     ]
