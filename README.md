@@ -22,3 +22,4 @@ _Minecraft written in PyGame. Because why not._
 ![32x map](screenshot.png)
 
 Thank you to [Javidx9](https://github.com/OneLoneCoder/)'s 3D renderer tutorials. A portion of the matrix code was derived from his.  
+Media from [Hugues Alexandre Ross](https://huguesross.net)' [RPG16 texturepack](https://content.minetest.net/packages/Hugues%20Ross/rpg16/), licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).  
